@@ -133,7 +133,7 @@ def main(args):
 
     if args_len < 3 or args_len > 4 :
         print ( "Usage:")
-        print ( args[0] + " filename")
+        print ( args[0] + " CSV_FILE_NAME [ -s | --single ] INPUT_FILE_FORMAT")
         sys.exit()
 
     if args_len == 3 :
