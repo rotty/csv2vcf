@@ -1,6 +1,7 @@
 """
-    Author : Mridul Ahuja
-    Github : https://github.com/mridah/csv2vcf
+    Author : Mridul Ahuja (original author)
+    Author : Alexander Willner (updates)
+    Github : https://github.com/AlexanderWillner/csv2vcf
     Description : A small command line tool to convert CSV files to VCard files
 
 """
