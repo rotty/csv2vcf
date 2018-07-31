@@ -17,6 +17,8 @@ import json
 def convert_to_vcard(input_file, single_output, input_file_format):
 
     FN = input_file_format['name']-1 if 'name' in input_file_format else None
+    GIVEN = input_file_format['given']-1 if 'given' in input_file_format else None
+    SURNAME = input_file_format['surname']-1 if 'surname' in input_file_format else None
     NICKNAME = input_file_format['nickname']-1 if 'nickname' in input_file_format else None
     ORG = input_file_format['org']-1 if 'org' in input_file_format else None
     TEL = input_file_format['tel']-1 if 'tel' in input_file_format else None
@@ -33,7 +35,9 @@ def convert_to_vcard(input_file, single_output, input_file_format):
             i = 0
             for row in reader:
 
-                FN_VAL = row[FN] if FN is not None else ''
+                N_VAL = row[SURNAME] if SURNAME is not None else ''
+                N_VAL = N_VAL + ";" + row[GIVEN] if GIVEN is not None else ''
+                FN_VAL = row[FN] if FN is not None else row[GIVEN] + " " + row[SURNAME]
                 NICKNAME_VAL = row[NICKNAME] if NICKNAME is not None else ''
                 ORG_VAL = row[ORG] if ORG is not None else ''
                 TEL_VAL = row[TEL] if TEL is not None else ''
@@ -44,7 +48,7 @@ def convert_to_vcard(input_file, single_output, input_file_format):
 
                 print 'BEGIN:VCARD'
                 print 'VERSION:3.0'
-                print 'N:' + FN_VAL
+                print 'N:' + N_VAL
                 print 'FN:' + FN_VAL
                 print 'NICKNAME:' + NICKNAME_VAL
                 print 'TEL;HOME;VOICE:' + TEL_VAL
@@ -59,7 +63,7 @@ def convert_to_vcard(input_file, single_output, input_file_format):
                 # write the single file
                 single_vcf.write( 'BEGIN:VCARD' + "\n")
                 single_vcf.write( 'VERSION:3.0' + "\n")
-                single_vcf.write( 'N:' + FN_VAL + ';' + "\n")
+                single_vcf.write( 'N:' + N_VAL + ';' + "\n")
                 single_vcf.write( 'FN:' + FN_VAL + "\n")
                 single_vcf.write( 'NICKNAME:' + NICKNAME_VAL + "\n")
                 single_vcf.write( 'TEL;HOME;VOICE:' + TEL_VAL + "\n")
@@ -84,7 +88,9 @@ def convert_to_vcard(input_file, single_output, input_file_format):
             i = 0
             for row in reader:
 
-                FN_VAL = row[FN] if FN is not None else ''
+                N_VAL = row[SURNAME] if SURNAME is not None else ''
+                N_VAL = N_VAL + ";" + row[GIVEN] if GIVEN is not None else ''
+                FN_VAL = row[FN] if FN is not None else row[GIVEN] + " " + row[SURNAME]
                 NICKNAME_VAL = row[NICKNAME] if NICKNAME is not None else ''
                 ORG_VAL = row[ORG] if ORG is not None else ''
                 TEL_VAL = row[TEL] if TEL is not None else ''
@@ -95,7 +101,7 @@ def convert_to_vcard(input_file, single_output, input_file_format):
 
                 print 'BEGIN:VCARD'
                 print 'VERSION:3.0'
-                print 'N:' + FN_VAL
+                print 'N:' + N_VAL
                 print 'FN:' + FN_VAL
                 print 'NICKNAME:' + NICKNAME_VAL
                 print 'TEL;HOME;VOICE:' + TEL_VAL
@@ -111,7 +117,7 @@ def convert_to_vcard(input_file, single_output, input_file_format):
                 each_vcf = open('csv2vcf/' + FN_VAL + '_' + TEL_VAL + ".vcf", 'w')
                 each_vcf.write( 'BEGIN:VCARD' + "\n")
                 each_vcf.write( 'VERSION:3.0' + "\n")
-                each_vcf.write( 'N:' + FN_VAL + ';' + "\n")
+                each_vcf.write( 'N:' + N_VAL + ';' + "\n")
                 each_vcf.write( 'FN:' + FN_VAL + "\n")
                 each_vcf.write( 'NICKNAME:' + NICKNAME_VAL + "\n")
                 each_vcf.write( 'TEL;HOME;VOICE:' + TEL_VAL + "\n")
