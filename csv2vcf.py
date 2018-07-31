@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
     Author : Mridul Ahuja (original author)
     Author : Alexander Willner (updates)
