@@ -2,7 +2,7 @@
 
 """
     Author : Mridul Ahuja (original author)
-    Author : Alexander Willner (updates)
+    Author : Alexander Willner (updates, refactoring)
     Github : https://github.com/AlexanderWillner/csv2vcf
     Description : A small command line tool to convert CSV files to VCard files
 
@@ -26,114 +26,62 @@ def convert_to_vcard(input_file, single_output, input_file_format):
     BDAY = input_file_format['bday']-1 if 'bday' in input_file_format else None
     ROLE = input_file_format['role']-1 if 'role' in input_file_format else None
     EMAIL = input_file_format['email']-1 if 'email' in input_file_format else None
+    
+    i = 0
 
-    # if single output option is selected
-    if single_output :
-        with open( input_file, 'r' ) as source_file:
-            reader = csv.reader( source_file )
-            single_vcf = open('csv2vcf/all_contacts.vcf', 'w')
-            i = 0
-            for row in reader:
+    with open( input_file, 'r' ) as source_file:
+    	reader = csv.reader( source_file )
 
-                N_VAL = row[SURNAME] if SURNAME is not None else ''
-                N_VAL = N_VAL + ";" + row[GIVEN] if GIVEN is not None else ''
-                FN_VAL = row[FN] if FN is not None else row[GIVEN] + " " + row[SURNAME]
-                NICKNAME_VAL = row[NICKNAME] if NICKNAME is not None else ''
-                ORG_VAL = row[ORG] if ORG is not None else ''
-                TEL_VAL = row[TEL] if TEL is not None else ''
-                URL_VAL = row[URL] if URL is not None else ''
-                BDAY_VAL = row[BDAY] if BDAY is not None else ''
-                ROLE_VAL = row[ROLE] if ROLE is not None else ''
-                EMAIL_VAL = row[EMAIL] if EMAIL is not None else ''
+        for row in reader:
+            N_VAL = row[SURNAME] if SURNAME is not None else ''
+            N_VAL = N_VAL + ";" + row[GIVEN] if GIVEN is not None else ''
+            FN_VAL = row[FN] if FN is not None else row[GIVEN] + " " + row[SURNAME]
+            NICKNAME_VAL = row[NICKNAME] if NICKNAME is not None else ''
+            ORG_VAL = row[ORG] if ORG is not None else ''
+            TEL_VAL = row[TEL] if TEL is not None else ''
+            URL_VAL = row[URL] if URL is not None else ''
+            BDAY_VAL = row[BDAY] if BDAY is not None else ''
+            ROLE_VAL = row[ROLE] if ROLE is not None else ''
+            EMAIL_VAL = row[EMAIL] if EMAIL is not None else ''
 
-                print 'BEGIN:VCARD'
-                print 'VERSION:3.0'
-                print 'N:' + N_VAL
-                print 'FN:' + FN_VAL
-                print 'NICKNAME:' + NICKNAME_VAL
-                print 'TEL;HOME;VOICE:' + TEL_VAL
-                print 'EMAIL:' + EMAIL_VAL
-                print 'BDAY:' + BDAY_VAL
-                print 'ORG:' + ORG_VAL
-                print 'ROLE:' + ROLE_VAL
-                print 'URL:' + URL_VAL
-                print 'END:VCARD'
-                print '----------------------'
-
-                # write the single file
-                single_vcf.write( 'BEGIN:VCARD' + "\n")
-                single_vcf.write( 'VERSION:3.0' + "\n")
-                single_vcf.write( 'N:' + N_VAL + ';' + "\n")
-                single_vcf.write( 'FN:' + FN_VAL + "\n")
-                single_vcf.write( 'NICKNAME:' + NICKNAME_VAL + "\n")
-                single_vcf.write( 'TEL;HOME;VOICE:' + TEL_VAL + "\n")
-                single_vcf.write( 'EMAIL:' + EMAIL_VAL + "\n")
-                single_vcf.write( 'BDAY:' + BDAY_VAL + "\n")
-                single_vcf.write( 'ORG:' + ORG_VAL + "\n")
-                single_vcf.write( 'ROLE:' + ROLE_VAL + "\n")
-                single_vcf.write( 'URL:' + URL_VAL + "\n")
-                single_vcf.write( 'END:VCARD' + "\n")
-                single_vcf.write( "\n")
-
-                i += 1
-
-            single_vcf.close()
-            print str(i) + " VCARDS written"
+            print 'BEGIN:VCARD'
+            print 'VERSION:3.0'
+            print 'N:' + N_VAL
+            print 'FN:' + FN_VAL
+            print 'NICKNAME:' + NICKNAME_VAL
+            print 'TEL;HOME;VOICE:' + TEL_VAL
+            print 'EMAIL:' + EMAIL_VAL
+            print 'BDAY:' + BDAY_VAL
+            print 'ORG:' + ORG_VAL
+            print 'ROLE:' + ROLE_VAL
+            print 'URL:' + URL_VAL
+            print 'END:VCARD'
             print '----------------------'
 
-    # default ( multi-file output )
-    else :
-        with open( input_file, 'r' ) as source_file:
-            reader = csv.reader( source_file )
-            i = 0
-            for row in reader:
+            if single_output : # if single output option is selected
+                vcf = open('csv2vcf/all_contacts.vcf', 'w')
+            else : # default ( multi-file output )
+                vcf = open('csv2vcf/' + FN_VAL + '_' + TEL_VAL + ".vcf", 'w')
 
-                N_VAL = row[SURNAME] if SURNAME is not None else ''
-                N_VAL = N_VAL + ";" + row[GIVEN] if GIVEN is not None else ''
-                FN_VAL = row[FN] if FN is not None else row[GIVEN] + " " + row[SURNAME]
-                NICKNAME_VAL = row[NICKNAME] if NICKNAME is not None else ''
-                ORG_VAL = row[ORG] if ORG is not None else ''
-                TEL_VAL = row[TEL] if TEL is not None else ''
-                URL_VAL = row[URL] if URL is not None else ''
-                BDAY_VAL = row[BDAY] if BDAY is not None else ''
-                ROLE_VAL = row[ROLE] if ROLE is not None else ''
-                EMAIL_VAL = row[EMAIL] if EMAIL is not None else ''
+            # write the file
+            vcf.write( 'BEGIN:VCARD' + "\n")
+            vcf.write( 'VERSION:3.0' + "\n")
+            vcf.write( 'N:' + N_VAL + ';' + "\n")
+            vcf.write( 'FN:' + FN_VAL + "\n")
+            vcf.write( 'NICKNAME:' + NICKNAME_VAL + "\n")
+            vcf.write( 'TEL;HOME;VOICE:' + TEL_VAL + "\n")
+            vcf.write( 'EMAIL:' + EMAIL_VAL + "\n")
+            vcf.write( 'BDAY:' + BDAY_VAL + "\n")
+            vcf.write( 'ORG:' + ORG_VAL + "\n")
+            vcf.write( 'ROLE:' + ROLE_VAL + "\n")
+            vcf.write( 'URL:' + URL_VAL + "\n")
+            vcf.write( 'END:VCARD' + "\n")
+            vcf.write( "\n")
+            vcf.close()
+            i += 1
 
-                print 'BEGIN:VCARD'
-                print 'VERSION:3.0'
-                print 'N:' + N_VAL
-                print 'FN:' + FN_VAL
-                print 'NICKNAME:' + NICKNAME_VAL
-                print 'TEL;HOME;VOICE:' + TEL_VAL
-                print 'EMAIL:' + EMAIL_VAL
-                print 'BDAY:' + BDAY_VAL
-                print 'ORG:' + ORG_VAL
-                print 'ROLE:' + ROLE_VAL
-                print 'URL:' + URL_VAL
-                print 'END:VCARD'
-                print '----------------------'
-
-                # write each entry
-                each_vcf = open('csv2vcf/' + FN_VAL + '_' + TEL_VAL + ".vcf", 'w')
-                each_vcf.write( 'BEGIN:VCARD' + "\n")
-                each_vcf.write( 'VERSION:3.0' + "\n")
-                each_vcf.write( 'N:' + N_VAL + ';' + "\n")
-                each_vcf.write( 'FN:' + FN_VAL + "\n")
-                each_vcf.write( 'NICKNAME:' + NICKNAME_VAL + "\n")
-                each_vcf.write( 'TEL;HOME;VOICE:' + TEL_VAL + "\n")
-                each_vcf.write( 'EMAIL:' + EMAIL_VAL + "\n")
-                each_vcf.write( 'BDAY:' + BDAY_VAL + "\n")
-                each_vcf.write( 'ORG:' + ORG_VAL + "\n")
-                each_vcf.write( 'ROLE:' + ROLE_VAL + "\n")
-                each_vcf.write( 'URL:' + URL_VAL + "\n")
-                each_vcf.write( 'END:VCARD' + "\n")
-                each_vcf.write("\n")
-                each_vcf.close()
-
-                i += 1
-
-            print str(i) + " VCARDS written"
-            print '----------------------'
+    print str(i) + " VCARDS written"
+    print '----------------------'
 
 
 def main(args):
