@@ -21,7 +21,7 @@ Where :
 
 The JSON string can have the following keys :
 
-`name`, `nickname`, `org`, `tel`, `url`, `bday`, `role`, and `email`, where each property is in accordance with [vCard property types](https://en.wikipedia.org/wiki/VCard)
+`name`, `given`, `surname`, `nickname`, `org`, `tel`, `url`, `bday`, `role`, and `email`, where each property is in accordance with [vCard property types](https://en.wikipedia.org/wiki/VCard)
 
 Format is `{KEY_1:KEY_1_COLUMN_NO, KEY_2:KEY_2_COLUMN_NO, ...}`
 
@@ -51,13 +51,17 @@ if you want separate vCards for each person, or
 
 `python csv2vcf.py -s contacts.csv '{"name":1, "tel":2}'`
 
-if you want to generate a single vCard file
+if you want to generate a single vCard file.
+
+Another example, if you've downloaded your contacts from LinkedIn, use the following command to import then into your address book: 
+
+`./csv2vcf.py Connections.csv '{"given":1, "surname":2, "email":3, "org":4, "role":5}'`
 
 
 ## Report bugs and suggestions :
-If you want to report a bug or want to add a sugestion, just add it in the issues. Or you can mail me at [this](mailto:mridul.ahuja@gmail.com).
+If you want to report a bug or want to add a sugestion, just add it in the issues.
 
 
 ## Copyright and license :
 
-The license is available within the repository in the [LICENSE](https://github.com/mridah/csv2vcf/blob/master/LICENSE.md) file.
+The license is available within the repository in the [LICENSE](https://github.com/AlexanderWillner/csv2vcf/blob/master/LICENSE.md) file (it's MIT).
