@@ -31,6 +31,8 @@ def convert_to_vcard(input_file, single_output, input_file_format):
 
     with open(input_file, 'r') as source_file:
         reader = csv.reader(source_file)
+        if single_output:  # if single output option is selected
+            vcf = open('csv2vcf/all_contacts.vcf', 'w')
 
         for row in reader:
             N_VAL = row[SURNAME] if SURNAME is not None else ''
@@ -58,9 +60,7 @@ def convert_to_vcard(input_file, single_output, input_file_format):
             print 'END:VCARD'
             print '----------------------'
 
-            if single_output:  # if single output option is selected
-                vcf = open('csv2vcf/all_contacts.vcf', 'w')
-            else:  # default ( multi-file output )
+            if not single_output:  # default ( multi-file output )
                 vcf = open('csv2vcf/' + FN_VAL + '_' + TEL_VAL + ".vcf", 'w')
 
             # write the file
@@ -77,9 +77,12 @@ def convert_to_vcard(input_file, single_output, input_file_format):
             vcf.write('URL:' + URL_VAL + "\n")
             vcf.write('END:VCARD' + "\n")
             vcf.write("\n")
-            vcf.close()
+
+            if not single_output:  # default ( multi-file output )
+                vcf.close()
             i += 1
 
+    vcf.close()
     print str(i) + " VCARDS written"
     print '----------------------'
 
