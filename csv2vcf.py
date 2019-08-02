@@ -12,130 +12,97 @@ import os
 import sys
 import csv
 import json
+import argparse
+import copy
 
+def make_n(fields):
+    if 'n' in fields:
+        return fields['n']
+    else:
+        return fields.get('given', '') + ' ' + fields.get('surname', '')
 
-def convert_to_vcard(input_file, single_output, input_file_format):
+VCARD_FIELDS = [
+    ('FN', 'fn'),
+    ('N', make_n),
+    ('NICKNAME', 'nickname'),
+    ('TEL;HOME;VOICE', 'tel'),
+    ('EMAIL', 'email'),
+    ('BDAY', 'bday'),
+    ('ORG', 'org'),
+    ('ROLE', 'role'),
+    ('URL', 'url'),
+]
 
-    FN = input_file_format['name']-1 if 'name' in input_file_format else None
-    GIVEN = input_file_format['given'] - \
-        1 if 'given' in input_file_format else None
-    SURNAME = input_file_format['surname'] - \
-        1 if 'surname' in input_file_format else None
-    NICKNAME = input_file_format['nickname'] - \
-        1 if 'nickname' in input_file_format else None
-    ORG = input_file_format['org']-1 if 'org' in input_file_format else None
-    TEL = input_file_format['tel']-1 if 'tel' in input_file_format else None
-    URL = input_file_format['url']-1 if 'url' in input_file_format else None
-    BDAY = input_file_format['bday']-1 if 'bday' in input_file_format else None
-    ROLE = input_file_format['role']-1 if 'role' in input_file_format else None
-    EMAIL = input_file_format['email'] - \
-        1 if 'email' in input_file_format else None
+class FieldMapper:
+    def __init__(self, mapping):
+        self._mapping = mapping
 
-    i = 0
+    def map_row(self, row):
+        return {key: row[value]
+                for (key, value) in self._mapping.items()}
 
-    with open(input_file, 'r') as source_file:
-        reader = csv.reader(source_file)
-        if single_output:  # if single output option is selected
-            vcf = open('csv2vcf/all_contacts.vcf', 'w')
+def read_csv(csv, mapper):
+    return [mapper.map_row(row) for row in csv]
 
-        for row in reader:
-            N_VAL = row[SURNAME] if SURNAME is not None else ''
-            N_VAL = N_VAL + ";" + row[GIVEN] if GIVEN is not None else ''
-            FN_VAL = row[FN] if FN is not None else row[GIVEN] + \
-                " " + row[SURNAME]
-            NICKNAME_VAL = row[NICKNAME] if NICKNAME is not None else ''
-            ORG_VAL = row[ORG] if ORG is not None else ''
-            TEL_VAL = row[TEL] if TEL is not None else ''
-            URL_VAL = row[URL] if URL is not None else ''
-            BDAY_VAL = row[BDAY] if BDAY is not None else ''
-            ROLE_VAL = row[ROLE] if ROLE is not None else ''
-            EMAIL_VAL = row[EMAIL] if EMAIL is not None else ''
+def parse_mapping(s):
+    tag, value = maybe_tagged(s)
+    return (tag, FieldMapper(json.loads(value)))
 
-            print('BEGIN:VCARD')
-            print('VERSION:3.0')
-            print('N:' + N_VAL)
-            print('FN:' + FN_VAL)
-            print('NICKNAME:' + NICKNAME_VAL)
-            print('TEL;HOME;VOICE:' + TEL_VAL)
-            print('EMAIL:' + EMAIL_VAL)
-            print('BDAY:' + BDAY_VAL)
-            print('ORG:' + ORG_VAL)
-            print('ROLE:' + ROLE_VAL)
-            print('URL:' + URL_VAL)
-            print('END:VCARD')
-            print('----------------------')
+def maybe_tagged(s):
+    idx = s.find(':')
+    if idx is None or not s[:idx].isalnum():
+        return (None, s)
+    else:
+        return (s[:idx], s[idx + 1:])
 
-            if not single_output:  # default ( multi-file output )
-                vcf = open('csv2vcf/' + FN_VAL + '_' + TEL_VAL + ".vcf", 'w')
+def parse_join_keys(s):
+    return s.split(':')
 
-            # write the file
-            vcf.write('BEGIN:VCARD' + "\n")
-            vcf.write('VERSION:3.0' + "\n")
-            vcf.write('N:' + N_VAL + ';' + "\n")
-            vcf.write('FN:' + FN_VAL + "\n")
-            vcf.write('NICKNAME:' + NICKNAME_VAL + "\n")
-            vcf.write('TEL;HOME;VOICE:' + TEL_VAL + "\n")
-            vcf.write('EMAIL:' + EMAIL_VAL + "\n")
-            vcf.write('BDAY:' + BDAY_VAL + "\n")
-            vcf.write('ORG:' + ORG_VAL + "\n")
-            vcf.write('ROLE:' + ROLE_VAL + "\n")
-            vcf.write('URL:' + URL_VAL + "\n")
-            vcf.write('END:VCARD' + "\n")
-            vcf.write("\n")
+def build_index(rows, key):
+    idx = {}
+    for i, row in enumerate(rows):
+        idx[row[key]] = i
+    return idx
 
-            if not single_output:  # default ( multi-file output )
-                vcf.close()
-            i += 1
+def join_tables(tables, keys):
+    result = copy.copy(tables[0])
+    result_idx = [(key, build_index(result, key)) for key in keys]
+    for (key, idx), table in zip(result_idx, tables[1:]):
+        for row in table:
+            key_value = row[key]
+            result[idx[key_value]].update(row)
+    return result
 
-    vcf.close()
-    print(str(i) + " VCARDS written")
-    print('----------------------')
-
+def format_vcf(rows):
+    for row in rows:
+        print('BEGIN:VCARD')
+        print('VERSION:3.0')
+        for (key, getter) in VCARD_FIELDS:
+            if callable(getter):
+                value = getter(row)
+            else:
+                value = row.get(getter, '')
+            print('{}:{}'.format(key, value))
+        print('END:VCARD')
 
 def main(args):
-    args_len = len(args)
+    parser = argparse.ArgumentParser(description='Convert CSV to VCF')
+    parser.add_argument('--map', metavar='MAPPING',
+                        action='append', dest='mappings',
+                        type=parse_mapping)
+    parser.add_argument('--join', metavar='KEYS', type=parse_join_keys, default=[])
+    parser.add_argument('input_specs', metavar='INPUT-SPECS', nargs='*', type=maybe_tagged)
+    options = parser.parse_args(args)
 
-    if args_len < 3 or args_len > 4:
-        print("Usage:")
-        print((args[0] + " CSV_FILE_NAME [ -s | --single ] INPUT_FILE_FORMAT"))
-        sys.exit()
-
-    if args_len == 3:
-        input_file = args[1]
-
-        try:
-            input_file_format = json.loads(args[2])
-        except Exception:
-            print('\033[91m'+"ERROR : json could not be parsed"+'\033[0m')
-            sys.exit()
-
-        single_output = 0
-    elif args_len == 4:
-        input_file = args[1]
-
-        if args[2] == '-s' or args[2] == '--single':
-            single_output = 1
-        else:
-            print('\033[91m'+"ERROR : invalid argument `" +
-                  args[2] + "`"+'\033[0m')
-            sys.exit()
-
-        try:
-            input_file_format = json.loads(args[3])
-        except Exception:
-            print('\033[91m'+"ERROR : json could not be parsed"+'\033[0m')
-            sys.exit()
-
-    if not os.path.exists(input_file):
-        print('\033[91m'+"ERROR : file `" +
-              input_file + "` not found"+'\033[0m')
-        sys.exit()
-
-    if not os.path.exists('csv2vcf'):
-        os.makedirs('csv2vcf')
-
-    convert_to_vcard(input_file, single_output, input_file_format)
-
+    inputs = []
+    mappings = dict(options.mappings)
+    for (tag, filename) in options.input_specs:
+        mapping = mappings[tag]
+        with open(filename) as f:
+            reader = csv.DictReader(f)
+            inputs.append(read_csv(reader, mapping))
+    combined = join_tables(inputs, options.join)
+    format_vcf(combined)
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv[1:])
