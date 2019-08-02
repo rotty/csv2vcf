@@ -46,19 +46,19 @@ def convert_to_vcard(input_file, single_output, input_file_format):
             ROLE_VAL = row[ROLE] if ROLE is not None else ''
             EMAIL_VAL = row[EMAIL] if EMAIL is not None else ''
 
-            print 'BEGIN:VCARD'
-            print 'VERSION:3.0'
-            print 'N:' + N_VAL
-            print 'FN:' + FN_VAL
-            print 'NICKNAME:' + NICKNAME_VAL
-            print 'TEL;HOME;VOICE:' + TEL_VAL
-            print 'EMAIL:' + EMAIL_VAL
-            print 'BDAY:' + BDAY_VAL
-            print 'ORG:' + ORG_VAL
-            print 'ROLE:' + ROLE_VAL
-            print 'URL:' + URL_VAL
-            print 'END:VCARD'
-            print '----------------------'
+            print('BEGIN:VCARD')
+            print('VERSION:3.0')
+            print('N:' + N_VAL)
+            print('FN:' + FN_VAL)
+            print('NICKNAME:' + NICKNAME_VAL)
+            print('TEL;HOME;VOICE:' + TEL_VAL)
+            print('EMAIL:' + EMAIL_VAL)
+            print('BDAY:' + BDAY_VAL)
+            print('ORG:' + ORG_VAL)
+            print('ROLE:' + ROLE_VAL)
+            print('URL:' + URL_VAL)
+            print('END:VCARD')
+            print('----------------------')
 
             if not single_output:  # default ( multi-file output )
                 vcf = open('csv2vcf/' + FN_VAL + '_' + TEL_VAL + ".vcf", 'w')
@@ -83,8 +83,8 @@ def convert_to_vcard(input_file, single_output, input_file_format):
             i += 1
 
     vcf.close()
-    print str(i) + " VCARDS written"
-    print '----------------------'
+    print(str(i) + " VCARDS written")
+    print('----------------------')
 
 
 def main(args):
@@ -92,7 +92,7 @@ def main(args):
 
     if args_len < 3 or args_len > 4:
         print("Usage:")
-        print(args[0] + " CSV_FILE_NAME [ -s | --single ] INPUT_FILE_FORMAT")
+        print((args[0] + " CSV_FILE_NAME [ -s | --single ] INPUT_FILE_FORMAT"))
         sys.exit()
 
     if args_len == 3:
@@ -101,7 +101,7 @@ def main(args):
         try:
             input_file_format = json.loads(args[2])
         except Exception:
-            print '\033[91m'+"ERROR : json could not be parsed"+'\033[0m'
+            print('\033[91m'+"ERROR : json could not be parsed"+'\033[0m')
             sys.exit()
 
         single_output = 0
@@ -111,17 +111,17 @@ def main(args):
         if args[2] == '-s' or args[2] == '--single':
             single_output = 1
         else:
-            print '\033[91m'+"ERROR : invalid argument `" + args[2] + "`"+'\033[0m'
+            print('\033[91m'+"ERROR : invalid argument `" + args[2] + "`"+'\033[0m')
             sys.exit()
 
         try:
             input_file_format = json.loads(args[3])
         except Exception:
-            print '\033[91m'+"ERROR : json could not be parsed"+'\033[0m'
+            print('\033[91m'+"ERROR : json could not be parsed"+'\033[0m')
             sys.exit()
 
     if not os.path.exists(input_file):
-        print '\033[91m'+"ERROR : file `" + input_file + "` not found"+'\033[0m'
+        print('\033[91m'+"ERROR : file `" + input_file + "` not found"+'\033[0m')
         sys.exit()
 
     if not os.path.exists('csv2vcf'):
