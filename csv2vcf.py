@@ -17,15 +17,19 @@ import json
 def convert_to_vcard(input_file, single_output, input_file_format):
 
     FN = input_file_format['name']-1 if 'name' in input_file_format else None
-    GIVEN = input_file_format['given']-1 if 'given' in input_file_format else None
-    SURNAME = input_file_format['surname']-1 if 'surname' in input_file_format else None
-    NICKNAME = input_file_format['nickname']-1 if 'nickname' in input_file_format else None
+    GIVEN = input_file_format['given'] - \
+        1 if 'given' in input_file_format else None
+    SURNAME = input_file_format['surname'] - \
+        1 if 'surname' in input_file_format else None
+    NICKNAME = input_file_format['nickname'] - \
+        1 if 'nickname' in input_file_format else None
     ORG = input_file_format['org']-1 if 'org' in input_file_format else None
     TEL = input_file_format['tel']-1 if 'tel' in input_file_format else None
     URL = input_file_format['url']-1 if 'url' in input_file_format else None
     BDAY = input_file_format['bday']-1 if 'bday' in input_file_format else None
     ROLE = input_file_format['role']-1 if 'role' in input_file_format else None
-    EMAIL = input_file_format['email']-1 if 'email' in input_file_format else None
+    EMAIL = input_file_format['email'] - \
+        1 if 'email' in input_file_format else None
 
     i = 0
 
@@ -37,7 +41,8 @@ def convert_to_vcard(input_file, single_output, input_file_format):
         for row in reader:
             N_VAL = row[SURNAME] if SURNAME is not None else ''
             N_VAL = N_VAL + ";" + row[GIVEN] if GIVEN is not None else ''
-            FN_VAL = row[FN] if FN is not None else row[GIVEN] + " " + row[SURNAME]
+            FN_VAL = row[FN] if FN is not None else row[GIVEN] + \
+                " " + row[SURNAME]
             NICKNAME_VAL = row[NICKNAME] if NICKNAME is not None else ''
             ORG_VAL = row[ORG] if ORG is not None else ''
             TEL_VAL = row[TEL] if TEL is not None else ''
@@ -111,7 +116,8 @@ def main(args):
         if args[2] == '-s' or args[2] == '--single':
             single_output = 1
         else:
-            print('\033[91m'+"ERROR : invalid argument `" + args[2] + "`"+'\033[0m')
+            print('\033[91m'+"ERROR : invalid argument `" +
+                  args[2] + "`"+'\033[0m')
             sys.exit()
 
         try:
@@ -121,7 +127,8 @@ def main(args):
             sys.exit()
 
     if not os.path.exists(input_file):
-        print('\033[91m'+"ERROR : file `" + input_file + "` not found"+'\033[0m')
+        print('\033[91m'+"ERROR : file `" +
+              input_file + "` not found"+'\033[0m')
         sys.exit()
 
     if not os.path.exists('csv2vcf'):
